@@ -10,8 +10,15 @@ if (!defined('VAMS_INCLUDED')) {
     require_once __DIR__ . '/../config/constants.php';
 }
 
+// Load settings helper
+require_once __DIR__ . '/settings_helper.php';
+
 // Get flash message if exists
 $flash_message = getFlashMessage();
+
+// Get dynamic app name and logo
+$app_name = get_setting('app_name', APP_NAME);
+$app_logo = get_setting('app_logo', null);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -19,7 +26,7 @@ $flash_message = getFlashMessage();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title><?php echo isset($page_title) ? $page_title . ' - ' : ''; ?><?php echo APP_NAME; ?></title>
+    <title><?php echo isset($page_title) ? $page_title . ' - ' : ''; ?><?php echo htmlspecialchars($app_name); ?></title>
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">

@@ -162,6 +162,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             }
                             
                             if (!$error_message) {
+                                // Get current user's role before update
+                                $current_user_before = fetchOne($pdo, 
+                                    "SELECT role_id FROM users WHERE id = :id LIMIT 1",
+                                    ['id' => $edit_user_id]
+                                );
+                                $old_role_id = $current_user_before['role_id'] ?? 0;
+                                
                                 // Update user
                                 $sql = "UPDATE users SET employee_id = :employee_id, full_name = :full_name, 
                                         email = :email, phone = :phone, role_id = :role_id, status = :status, 
@@ -181,7 +188,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 
                                 if ($affected > 0) {
                                     regenerateCsrfToken();
-                                    $success_message = 'User updated successfully.';
+                                    
+                                    // Check if role was changed
+                                    if ($old_role_id != $role_id) {
+                                        $success_message = 'User updated successfully. Role changed.';
+                                    } else {
+                                        $success_message = 'User updated successfully.';
+                                    }
                                     
                                     $_SESSION['flash_message'] = [
                                         'type' => 'success',
@@ -333,6 +346,7 @@ $csrf_token = generateCsrfToken();
                                                     <?php endforeach; ?>
                                                 </select>
                                                 <?php if ($user['id'] === $current_user_id): ?>
+                                                <input type="hidden" name="role_id" value="<?php echo $user['role_id']; ?>">
                                                 <small class="text-muted">You cannot change your own role.</small>
                                                 <?php endif; ?>
                                             </div>
@@ -347,6 +361,7 @@ $csrf_token = generateCsrfToken();
                                                     <option value="inactive" <?php echo ($user['status'] === 'inactive') ? 'selected' : ''; ?>>Inactive</option>
                                                 </select>
                                                 <?php if ($user['id'] === $current_user_id): ?>
+                                                <input type="hidden" name="status" value="<?php echo $user['status']; ?>">
                                                 <small class="text-muted">You cannot change your own status.</small>
                                                 <?php endif; ?>
                                             </div>

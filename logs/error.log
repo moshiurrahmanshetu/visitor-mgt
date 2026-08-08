@@ -1,1 +1,33 @@
 [2026-08-08 18:34:59] Database Connection Failed: SQLSTATE[HY000] [1049] Unknown database 'vams'
+[2026-08-08 19:50:49] Query Failed: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'visitor_db.site_settings' doesn't exist | SQL: SELECT setting_value FROM site_settings WHERE setting_key = :key LIMIT 1
+[2026-08-08 19:50:49] Failed to get setting 'app_name': SQLSTATE[42S02]: Base table or view not found: 1146 Table 'visitor_db.site_settings' doesn't exist
+[2026-08-08 19:50:49] Query Failed: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'visitor_db.site_settings' doesn't exist | SQL: SELECT setting_value FROM site_settings WHERE setting_key = :key LIMIT 1
+[2026-08-08 19:50:49] Failed to get setting 'app_logo': SQLSTATE[42S02]: Base table or view not found: 1146 Table 'visitor_db.site_settings' doesn't exist
+[2026-08-08 19:50:49] Query Failed: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'visitor_db.site_settings' doesn't exist | SQL: SELECT setting_value FROM site_settings WHERE setting_key = :key LIMIT 1
+[2026-08-08 19:50:49] Failed to get setting 'app_name': SQLSTATE[42S02]: Base table or view not found: 1146 Table 'visitor_db.site_settings' doesn't exist
+[2026-08-08 19:50:49] Query Failed: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'visitor_db.site_settings' doesn't exist | SQL: SELECT setting_value FROM site_settings WHERE setting_key = :key LIMIT 1
+[2026-08-08 19:50:49] Failed to get setting 'app_logo': SQLSTATE[42S02]: Base table or view not found: 1146 Table 'visitor_db.site_settings' doesn't exist
+[2026-08-08 19:50:57] Query Failed: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'visitor_db.site_settings' doesn't exist | SQL: SELECT setting_value FROM site_settings WHERE setting_key = :key LIMIT 1
+[2026-08-08 19:50:57] Failed to get setting 'app_name': SQLSTATE[42S02]: Base table or view not found: 1146 Table 'visitor_db.site_settings' doesn't exist
+[2026-08-08 19:50:57] Query Failed: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'visitor_db.site_settings' doesn't exist | SQL: SELECT setting_value FROM site_settings WHERE setting_key = :key LIMIT 1
+[2026-08-08 19:50:57] Failed to get setting 'app_logo': SQLSTATE[42S02]: Base table or view not found: 1146 Table 'visitor_db.site_settings' doesn't exist
+[2026-08-08 19:50:57] Query Failed: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'visitor_db.site_settings' doesn't exist | SQL: SELECT setting_value FROM site_settings WHERE setting_key = :key LIMIT 1
+[2026-08-08 19:50:57] Failed to get setting 'company_name': SQLSTATE[42S02]: Base table or view not found: 1146 Table 'visitor_db.site_settings' doesn't exist
+[2026-08-08 19:50:57] Query Failed: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'visitor_db.site_settings' doesn't exist | SQL: SELECT setting_value FROM site_settings WHERE setting_key = :key LIMIT 1
+[2026-08-08 19:50:57] Failed to get setting 'company_address': SQLSTATE[42S02]: Base table or view not found: 1146 Table 'visitor_db.site_settings' doesn't exist
+[2026-08-08 19:50:57] Query Failed: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'visitor_db.site_settings' doesn't exist | SQL: SELECT setting_value FROM site_settings WHERE setting_key = :key LIMIT 1
+[2026-08-08 19:50:57] Failed to get setting 'company_phone': SQLSTATE[42S02]: Base table or view not found: 1146 Table 'visitor_db.site_settings' doesn't exist
+[2026-08-08 19:50:57] Query Failed: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'visitor_db.site_settings' doesn't exist | SQL: SELECT setting_value FROM site_settings WHERE setting_key = :key LIMIT 1
+[2026-08-08 19:50:57] Failed to get setting 'company_email': SQLSTATE[42S02]: Base table or view not found: 1146 Table 'visitor_db.site_settings' doesn't exist
+[2026-08-08 19:50:57] Query Failed: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'visitor_db.site_settings' doesn't exist | SQL: SELECT setting_value FROM site_settings WHERE setting_key = :key LIMIT 1
+[2026-08-08 19:50:57] Failed to get setting 'pass_validity_hours': SQLSTATE[42S02]: Base table or view not found: 1146 Table 'visitor_db.site_settings' doesn't exist
+[2026-08-08 19:50:57] Query Failed: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'visitor_db.site_settings' doesn't exist | SQL: SELECT setting_value FROM site_settings WHERE setting_key = :key LIMIT 1
+[2026-08-08 19:50:57] Failed to get setting 'items_per_page': SQLSTATE[42S02]: Base table or view not found: 1146 Table 'visitor_db.site_settings' doesn't exist
+[2026-08-08 19:50:57] Query Failed: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'visitor_db.site_settings' doesn't exist | SQL: SELECT setting_value FROM site_settings WHERE setting_key = :key LIMIT 1
+[2026-08-08 19:50:57] Failed to get setting 'app_name': SQLSTATE[42S02]: Base table or view not found: 1146 Table 'visitor_db.site_settings' doesn't exist
+[2026-08-08 19:50:57] Query Failed: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'visitor_db.site_settings' doesn't exist | SQL: SELECT setting_value FROM site_settings WHERE setting_key = :key LIMIT 1
+[2026-08-08 19:50:57] Failed to get setting 'app_logo': SQLSTATE[42S02]: Base table or view not found: 1146 Table 'visitor_db.site_settings' doesn't exist
+[2026-08-08 19:50:57] Query Failed: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'visitor_db.site_settings' doesn't exist | SQL: SELECT setting_value FROM site_settings WHERE setting_key = :key LIMIT 1
+[2026-08-08 19:50:57] Failed to get setting 'app_name': SQLSTATE[42S02]: Base table or view not found: 1146 Table 'visitor_db.site_settings' doesn't exist
+[2026-08-08 19:50:57] Query Failed: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'visitor_db.site_settings' doesn't exist | SQL: SELECT setting_value FROM site_settings WHERE setting_key = :key LIMIT 1
+[2026-08-08 19:50:57] Failed to get setting 'app_logo': SQLSTATE[42S02]: Base table or view not found: 1146 Table 'visitor_db.site_settings' doesn't exist

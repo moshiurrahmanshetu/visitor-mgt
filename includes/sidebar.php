@@ -10,15 +10,26 @@ if (!defined('VAMS_INCLUDED')) {
     require_once __DIR__ . '/../config/constants.php';
 }
 
+// Load settings helper
+require_once __DIR__ . '/settings_helper.php';
+
 $current_user_role = getCurrentUserRole();
 $current_path = $_SERVER['REQUEST_URI'];
+
+// Get dynamic app name and logo
+$app_name = get_setting('app_name', APP_NAME);
+$app_logo = get_setting('app_logo', null);
 ?>
 
 <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
         <h5 class="sidebar-brand">
+            <?php if ($app_logo): ?>
+            <img src="<?php echo ASSETS_URL; ?>/uploads/settings/<?php echo htmlspecialchars($app_logo); ?>" alt="Logo" class="sidebar-logo me-2">
+            <?php else: ?>
             <i class="bi bi-shield-check text-primary me-2"></i>
-            VAMS
+            <?php endif; ?>
+            <?php echo htmlspecialchars($app_name); ?>
         </h5>
     </div>
     
@@ -195,8 +206,9 @@ $current_path = $_SERVER['REQUEST_URI'];
                 </a>
             </li>
             
-            <li class="nav-item disabled">
-                <a class="nav-link" href="#">
+            <li class="nav-item">
+                <a class="nav-link <?php echo strpos($current_path, '/modules/settings/index.php') !== false ? 'active' : ''; ?>" 
+                   href="<?php echo BASE_URL; ?>/modules/settings/index.php">
                     <i class="bi bi-gear"></i>
                     <span class="nav-text">Settings</span>
                 </a>

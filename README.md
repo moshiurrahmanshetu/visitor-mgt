@@ -92,6 +92,21 @@ This phase implements Admin-only user management including:
 - Database update: is_deleted column added to users table with index
 - Password show/hide toggle on Add User and Reset Password forms
 - Avatar upload with validation (JPG/PNG, max 2MB, unique filename)
+- Bug fix: Role assignment now works correctly with hidden input fields for self-protection
+
+## Phase 7: Site Settings
+
+This phase implements system-wide configuration settings including:
+- Site Settings page (Admin only) with key-value storage design
+- App Name and App Logo (JPG/PNG, max 1MB, stored in /assets/uploads/settings/)
+- Company Information (Name, Address, Phone, Email)
+- System Configuration (Pass Validity Hours, Items Per Page)
+- Settings helper function `get_setting($key)` for retrieving values
+- Dynamic app name and logo in header and sidebar (reflects saved settings)
+- Settings stored in site_settings table with key-value design for easy future expansion
+- Role-based access control: Admin only (all other roles redirected with error)
+- Logo upload with validation and old file deletion pattern
+- CSRF token validation on settings form
 
 ## Tech Stack
 
@@ -138,6 +153,7 @@ This phase implements Admin-only user management including:
    - Then import `03_visits.sql` (creates visits table)
    - Then import `04_checkinout.sql` (creates visitor_passes table and adds is_currently_inside to visits)
    - Then import `06_users_alter.sql` (adds is_deleted column to users table)
+   - Then import `07_site_settings.sql` (creates site_settings table with seed data)
    - Use phpMyAdmin's Import feature or MySQL CLI:
      ```bash
      mysql -u root -p vams < database/01_users_roles.sql
@@ -145,6 +161,7 @@ This phase implements Admin-only user management including:
      mysql -u root -p vams < database/03_visits.sql
      mysql -u root -p vams < database/04_checkinout.sql
      mysql -u root -p vams < database/06_users_alter.sql
+     mysql -u root -p vams < database/07_site_settings.sql
      ```
 
 4. Verify the tables were created:
@@ -153,6 +170,7 @@ This phase implements Admin-only user management including:
    - `visitors` table (empty, ready for visitor records)
    - `visits` table (empty, ready for visit records, with is_currently_inside column)
    - `visitor_passes` table (empty, ready for pass records)
+   - `site_settings` table with seed configuration data
 
 ### 3. Configure Database Connection
 
@@ -225,16 +243,18 @@ visitor-mgt/
 │   │   └── sidebar.js         # Sidebar toggle functionality
 │   ├── images/                # Static images
 │   └── uploads/
-│       └── avatars/           # User avatar uploads
+│       ├── avatars/           # User avatar uploads
+│       └── settings/          # Site settings logo uploads
 ├── config/
 │   ├── constants.php          # Application constants
-│   └── db.php                 # Database connection & helpers
+│   └── db.php                 # Database connection and helpers
 ├── includes/
 │   ├── auth_check.php         # Session/role guard
 │   ├── header.php              # HTML head & opening body
 │   ├── footer.php              # Closing body & scripts
 │   ├── navbar.php              # Top navigation bar
-│   └── sidebar.php             # Collapsible sidebar
+│   ├── sidebar.php             # Collapsible sidebar
+│   └── settings_helper.php    # Settings helper functions
 ├── modules/
 │   ├── auth/
 │   │   ├── login.php           # Login page
@@ -282,6 +302,8 @@ visitor-mgt/
 │       ├── toggle_status.php   # Activate/Deactivate
 │       ├── delete.php          # Soft Delete
 │       └── restore.php         # Restore User
+│   └── settings/
+│       └── index.php           # Site Settings page
 ├── dashboard/
 │   └── index.php               # Dashboard shell
 ├── database/
@@ -289,7 +311,8 @@ visitor-mgt/
 │   ├── 02_visitors.sql         # Visitors schema
 │   ├── 03_visits.sql          # Visits schema
 │   ├── 04_checkinout.sql      # Visitor passes schema and visits table update
-│   └── 06_users_alter.sql     # User management alter (is_deleted column)
+│   ├── 06_users_alter.sql     # User management alter (is_deleted column)
+│   └── 07_site_settings.sql   # Site settings table
 ├── logs/
 │   └── error.log               # Error logs (auto-created)
 ├── index.php                   # Root redirect
@@ -416,6 +439,21 @@ visitor-mgt/
 - Avatar upload with validation (JPG/PNG, max 2MB, unique filename)
 - Role badge colors: Admin=red, Receptionist=blue, Security=orange, Employee=green
 - Status badge colors: Active=green, Inactive=gray
+
+## Features Implemented (Phase 7)
+
+### Site Settings
+- Site Settings page (Admin only) with key-value storage design
+- App Name and App Logo (JPG/PNG, max 1MB, stored in /assets/uploads/settings/)
+- Company Information (Name, Address, Phone, Email)
+- System Configuration (Pass Validity Hours: 1-72, Items Per Page: 5-100)
+- Settings helper function `get_setting($key)` for retrieving values with fallback
+- Dynamic app name and logo in header and sidebar (reflects saved settings immediately)
+- Settings stored in site_settings table with key-value design for easy future expansion
+- Role-based access control: Admin only (all other roles redirected with error)
+- Logo upload with validation and old file deletion pattern
+- CSRF token validation on settings form
+- Server-side validation for email format and numeric ranges
 
 ### UI/UX
 - Clean, professional Bootstrap 5 interface
@@ -548,7 +586,7 @@ The following features will be implemented in future phases:
 ## Support
 
 For issues or questions related to this phase, please refer to:
-- Database schema: `database/01_users_roles.sql`, `database/02_visitors.sql`, `database/03_visits.sql`, `database/04_checkinout.sql`, and `database/06_users_alter.sql`
+- Database schema: `database/01_users_roles.sql`, `database/02_visitors.sql`, `database/03_visits.sql`, `database/04_checkinout.sql`, `database/06_users_alter.sql`, and `database/07_site_settings.sql`
 - Configuration: `config/constants.php` and `config/db.php`
 - Error logs: `logs/error.log`
 
@@ -558,5 +596,5 @@ This project is proprietary and confidential. All rights reserved.
 
 ---
 
-**Version**: 6.0.0 (Phase 6)
+**Version**: 7.0.0 (Phase 7)
 **Last Updated**: August 2026
