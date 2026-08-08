@@ -17,6 +17,7 @@
     --sidebar-collapsed-width: 70px;
     --sidebar-bg: #2d3748;
     --sidebar-text: #e2e8f0;
+    --text-muted: #aaaaaa !important;
     --sidebar-hover: #4a5568;
     --sidebar-active: #667eea;
     
@@ -41,7 +42,9 @@ body {
     color: #2d3748;
     line-height: 1.6;
 }
-
+.text-muted{
+    color: var(--text-muted) !important;
+}
 /* Flash Message Container */
 .flash-message-container {
     position: fixed;

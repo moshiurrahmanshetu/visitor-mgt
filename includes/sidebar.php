@@ -42,18 +42,30 @@ $current_path = $_SERVER['REQUEST_URI'];
                 </a>
             </li>
             
-            <!-- Placeholder sections for future phases -->
+            <!-- Visitor Management -->
             <li class="nav-item sidebar-section">
                 <span class="nav-text text-muted small">Visitor Management</span>
             </li>
             
-            <li class="nav-item disabled">
-                <a class="nav-link" href="#">
+            <?php if (in_array($current_user_role, ['Admin', 'Receptionist'])): ?>
+            <li class="nav-item">
+                <a class="nav-link <?php echo strpos($current_path, '/modules/visitors/add.php') !== false ? 'active' : ''; ?>" 
+                   href="<?php echo BASE_URL; ?>/modules/visitors/add.php">
+                    <i class="bi bi-person-plus"></i>
+                    <span class="nav-text">Add Visitor</span>
+                </a>
+            </li>
+            <?php endif; ?>
+            
+            <li class="nav-item">
+                <a class="nav-link <?php echo strpos($current_path, '/modules/visitors/list.php') !== false || strpos($current_path, '/modules/visitors/view.php') !== false || strpos($current_path, '/modules/visitors/edit.php') !== false ? 'active' : ''; ?>" 
+                   href="<?php echo BASE_URL; ?>/modules/visitors/list.php">
                     <i class="bi bi-people"></i>
-                    <span class="nav-text">Visitors</span>
+                    <span class="nav-text">Visitor List</span>
                 </a>
             </li>
             
+            <!-- Visits (Phase 3 - disabled) -->
             <li class="nav-item disabled">
                 <a class="nav-link" href="#">
                     <i class="bi bi-calendar-check"></i>

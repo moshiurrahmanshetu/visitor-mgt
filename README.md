@@ -12,6 +12,17 @@ This phase implements the foundational authentication system including:
 - Collapsible sidebar navigation
 - Responsive admin panel layout
 
+## Phase 2: Visitor Management
+
+This phase implements visitor registration and management including:
+- Add new visitors with photo upload
+- Visitor list with search, filter, and pagination
+- View visitor details
+- Edit visitor information
+- Soft delete and restore visitors
+- Duplicate phone number detection via AJAX
+- Role-based access control (Admin/Receptionist can add/edit/delete, Security/Employee can view only)
+
 ## Tech Stack
 
 - **Frontend**: HTML5, CSS3, JavaScript, Bootstrap 5
@@ -38,6 +49,7 @@ This phase implements the foundational authentication system including:
 
 2. Ensure the following directories exist and are writable:
    - `assets/uploads/avatars`
+   - `assets/uploads/visitors`
    - `logs`
 
 ### 2. Database Configuration
@@ -49,15 +61,20 @@ This phase implements the foundational authentication system including:
    CREATE DATABASE vams CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
    ```
 
-3. Import the SQL file:
+3. Import the SQL files (in order):
    - Navigate to the `database` folder
-   - Open `01_users_roles.sql`
-   - Import it into the `vams` database using phpMyAdmin's Import feature
-   - Or run via MySQL CLI: `mysql -u root -p vams < database/01_users_roles.sql`
+   - Import `01_users_roles.sql` first (creates roles and users tables)
+   - Then import `02_visitors.sql` (creates visitors table)
+   - Use phpMyAdmin's Import feature or MySQL CLI:
+     ```bash
+     mysql -u root -p vams < database/01_users_roles.sql
+     mysql -u root -p vams < database/02_visitors.sql
+     ```
 
 4. Verify the tables were created:
    - `roles` table with 4 seed roles
    - `users` table with 1 default admin user
+   - `visitors` table (empty, ready for visitor records)
 
 ### 3. Configure Database Connection
 
@@ -87,6 +104,7 @@ define('MAX_FILE_SIZE', 2 * 1024 * 1024);  // Max upload size (2MB)
 Ensure the following directories have write permissions:
 
 - `assets/uploads/avatars` - for user avatar uploads
+- `assets/uploads/visitors` - for visitor photo uploads
 - `logs` - for error logs
 
 **For Windows**: These should already be writable. If not, right-click the folder → Properties → Security → Edit permissions.
@@ -94,6 +112,7 @@ Ensure the following directories have write permissions:
 **For Linux/Mac**:
 ```bash
 chmod 755 assets/uploads/avatars
+chmod 755 assets/uploads/visitors
 chmod 755 logs
 ```
 
@@ -144,14 +163,23 @@ visitor-mgt/
 │   │   ├── logout.php          # Logout handler
 │   │   ├── register.php        # User registration (admin-only scaffold)
 │   │   └── forgot_password.php # Password reset (scaffold)
-│   └── profile/
-│       ├── profile.php         # Profile view/edit
-│       ├── change_password.php # Change password
-│       └── change_avatar.php   # Upload avatar
+│   ├── profile/
+│   │   ├── profile.php         # Profile view/edit
+│   │   ├── change_password.php # Change password
+│   │   └── change_avatar.php   # Upload avatar
+│   └── visitors/
+│       ├── add.php             # Add new visitor
+│       ├── list.php            # Visitor list with search/filter/pagination
+│       ├── view.php            # View visitor details
+│       ├── edit.php            # Edit visitor
+│       ├── delete.php          # Soft delete visitor
+│       ├── restore.php         # Restore deleted visitor (Admin only)
+│       └── check_phone.php     # AJAX endpoint for duplicate phone check
 ├── dashboard/
 │   └── index.php               # Dashboard shell
 ├── database/
-│   └── 01_users_roles.sql      # Database schema
+│   ├── 01_users_roles.sql      # Users and roles schema
+│   └── 02_visitors.sql         # Visitors schema
 ├── logs/
 │   └── error.log               # Error logs (auto-created)
 ├── index.php                   # Root redirect
@@ -179,6 +207,24 @@ visitor-mgt/
 - Password change with validation
 - Avatar upload with image validation
 - File type and size restrictions
+
+## Features Implemented (Phase 2)
+
+### Visitor Management
+- Add new visitors with comprehensive information
+- Auto-generated visitor codes (VIS-XXXXXX format)
+- Photo upload with validation (JPG/PNG, max 2MB)
+- Visitor list with pagination (15 records per page)
+- Search by name, phone, or visitor code
+- Filter by company, ID type, and date range
+- View detailed visitor information
+- Edit visitor details with photo replacement
+- Soft delete visitors (no hard deletion)
+- Restore deleted visitors (Admin only)
+- AJAX duplicate phone number detection
+- Role-based access control:
+  - Admin/Receptionist: Full access (add, edit, delete, restore)
+  - Security/Employee: Read-only access (view and search only)
 
 ### UI/UX
 - Clean, professional Bootstrap 5 interface
@@ -219,11 +265,27 @@ visitor-mgt/
 - `created_at` - Account creation timestamp
 - `updated_at` - Last update timestamp
 
+### Visitors Table
+- `id` - Primary key
+- `visitor_code` - Unique visitor code (auto-generated: VIS-XXXXXX)
+- `full_name` - Visitor's full name
+- `phone` - Phone number (indexed for search)
+- `email` - Email address (indexed for search)
+- `company_name` - Company/organization name
+- `address` - Physical address
+- `photo` - Photo filename
+- `id_type` - ID type (NID, Passport, Driving License, Other)
+- `id_number` - ID number
+- `emergency_contact` - Emergency contact phone
+- `is_deleted` - Soft delete flag (0=active, 1=deleted)
+- `created_by` - Foreign key to users table (creator)
+- `created_at` - Record creation timestamp
+- `updated_at` - Last update timestamp
+
 ## Future Phases
 
 The following features will be implemented in future phases:
 
-- **Phase 2**: Visitor Management (registration, profiles, history)
 - **Phase 3**: Visit Management (scheduling, check-in/check-out)
 - **Phase 4**: Approval System (workflow for visit approvals)
 - **Phase 5**: Reports and Analytics (visitor statistics, export)
@@ -243,7 +305,7 @@ The following features will be implemented in future phases:
 - Clear browser cookies
 
 ### File Upload Not Working
-- Ensure `assets/uploads/avatars` directory exists and is writable
+- Ensure `assets/uploads/avatars` and `assets/uploads/visitors` directories exist and are writable
 - Check PHP upload_max_filesize and post_max_size in `php.ini`
 - Verify file size doesn't exceed MAX_FILE_SIZE in constants.php
 
@@ -268,7 +330,7 @@ The following features will be implemented in future phases:
 ## Support
 
 For issues or questions related to this phase, please refer to:
-- Database schema: `database/01_users_roles.sql`
+- Database schema: `database/01_users_roles.sql` and `database/02_visitors.sql`
 - Configuration: `config/constants.php` and `config/db.php`
 - Error logs: `logs/error.log`
 
@@ -278,5 +340,5 @@ This project is proprietary and confidential. All rights reserved.
 
 ---
 
-**Version**: 1.0.0 (Phase 1)
+**Version**: 2.0.0 (Phase 2)
 **Last Updated**: August 2026
