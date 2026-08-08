@@ -65,13 +65,38 @@ $current_path = $_SERVER['REQUEST_URI'];
                 </a>
             </li>
             
-            <!-- Visits (Phase 3 - disabled) -->
-            <li class="nav-item disabled">
-                <a class="nav-link" href="#">
-                    <i class="bi bi-calendar-check"></i>
-                    <span class="nav-text">Visits</span>
+            <!-- Visit Management -->
+            <li class="nav-item sidebar-section">
+                <span class="nav-text text-muted small">Visit Management</span>
+            </li>
+            
+            <?php if (in_array($current_user_role, ['Admin', 'Receptionist'])): ?>
+            <li class="nav-item">
+                <a class="nav-link <?php echo strpos($current_path, '/modules/visits/add.php') !== false ? 'active' : ''; ?>" 
+                   href="<?php echo BASE_URL; ?>/modules/visits/add.php">
+                    <i class="bi bi-calendar-plus"></i>
+                    <span class="nav-text">Create Visit</span>
                 </a>
             </li>
+            <?php endif; ?>
+            
+            <?php if ($current_user_role === 'Employee'): ?>
+            <li class="nav-item">
+                <a class="nav-link <?php echo strpos($current_path, '/modules/visits/list.php') !== false ? 'active' : ''; ?>" 
+                   href="<?php echo BASE_URL; ?>/modules/visits/list.php?status=Pending">
+                    <i class="bi bi-clock-history"></i>
+                    <span class="nav-text">My Approvals</span>
+                </a>
+            </li>
+            <?php else: ?>
+            <li class="nav-item">
+                <a class="nav-link <?php echo strpos($current_path, '/modules/visits/list.php') !== false || strpos($current_path, '/modules/visits/view.php') !== false || strpos($current_path, '/modules/visits/edit.php') !== false ? 'active' : ''; ?>" 
+                   href="<?php echo BASE_URL; ?>/modules/visits/list.php">
+                    <i class="bi bi-calendar-check"></i>
+                    <span class="nav-text">All Visits</span>
+                </a>
+            </li>
+            <?php endif; ?>
             
             <li class="nav-item sidebar-section">
                 <span class="nav-text text-muted small">Management</span>

@@ -25,7 +25,7 @@ $current_user_role = getCurrentUserRole();
 $current_user_email = $_SESSION['email'] ?? '';
 $current_user_id = getCurrentUserId();
 
-// Get some basic stats (placeholder for future phases)
+// Get stats based on role
 try {
     $pdo = getDbConnection();
     
@@ -37,9 +37,44 @@ try {
     $total_roles = fetchOne($pdo, "SELECT COUNT(*) as count FROM roles");
     $total_roles_count = $total_roles['count'] ?? 0;
     
+    // Visit statistics based on role
+    $today = date('Y-m-d');
+    
+    if ($current_user_role === 'Employee') {
+        // Employee: Pending approvals for their own visits
+        $pending_approvals = fetchOne($pdo, 
+            "SELECT COUNT(*) as count FROM visits WHERE host_id = :user_id AND status = 'Pending'",
+            ['user_id' => $current_user_id]
+        );
+        $pending_approvals_count = $pending_approvals['count'] ?? 0;
+    } elseif (in_array($current_user_role, ['Admin', 'Receptionist'])) {
+        // Admin/Receptionist: Today's visits and all pending approvals
+        $today_visits = fetchOne($pdo, 
+            "SELECT COUNT(*) as count FROM visits WHERE visit_date = :today AND status != 'Cancelled'",
+            ['today' => $today]
+        );
+        $today_visits_count = $today_visits['count'] ?? 0;
+        
+        $pending_approvals = fetchOne($pdo, 
+            "SELECT COUNT(*) as count FROM visits WHERE status = 'Pending'",
+            []
+        );
+        $pending_approvals_count = $pending_approvals['count'] ?? 0;
+    } elseif ($current_user_role === 'Security') {
+        // Security: Approved visits today
+        $approved_today = fetchOne($pdo, 
+            "SELECT COUNT(*) as count FROM visits WHERE visit_date = :today AND status = 'Approved'",
+            ['today' => $today]
+        );
+        $approved_today_count = $approved_today['count'] ?? 0;
+    }
+    
 } catch (PDOException $e) {
     $total_users_count = 0;
     $total_roles_count = 0;
+    $pending_approvals_count = 0;
+    $today_visits_count = 0;
+    $approved_today_count = 0;
 }
 ?>
 <?php require_once __DIR__ . '/../includes/header.php'; ?>
@@ -68,6 +103,75 @@ try {
                 
                 <!-- Stats Cards -->
                 <div class="row mb-4">
+                    <?php if ($current_user_role === 'Employee'): ?>
+                    <!-- Employee: Pending Approvals -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card stat-card">
+                            <div class="card-body">
+                                <div class="stat-icon bg-warning">
+                                    <i class="bi bi-clock-history"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <h3><?php echo $pending_approvals_count; ?></h3>
+                                    <p class="text-muted mb-0">Pending Approvals</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card stat-card">
+                            <div class="card-body">
+                                <div class="stat-icon bg-primary">
+                                    <i class="bi bi-people"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <h3><?php echo $total_users_count; ?></h3>
+                                    <p class="text-muted mb-0">Active Users</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card stat-card">
+                            <div class="card-body">
+                                <div class="stat-icon bg-success">
+                                    <i class="bi bi-person-badge"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <h3><?php echo $total_roles_count; ?></h3>
+                                    <p class="text-muted mb-0">User Roles</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <?php elseif (in_array($current_user_role, ['Admin', 'Receptionist'])): ?>
+                    <!-- Admin/Receptionist: Today's Visits and Pending Approvals -->
+                    <div class="col-md-6 col-lg-3">
+                        <div class="card stat-card">
+                            <div class="card-body">
+                                <div class="stat-icon bg-warning">
+                                    <i class="bi bi-calendar-check"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <h3><?php echo $today_visits_count; ?></h3>
+                                    <p class="text-muted mb-0">Today's Visits</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3">
+                        <div class="card stat-card">
+                            <div class="card-body">
+                                <div class="stat-icon bg-info">
+                                    <i class="bi bi-clock-history"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <h3><?php echo $pending_approvals_count; ?></h3>
+                                    <p class="text-muted mb-0">Pending Approvals (All)</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="col-md-6 col-lg-3">
                         <div class="card stat-card">
                             <div class="card-body">
@@ -81,7 +185,6 @@ try {
                             </div>
                         </div>
                     </div>
-                    
                     <div class="col-md-6 col-lg-3">
                         <div class="card stat-card">
                             <div class="card-body">
@@ -95,34 +198,48 @@ try {
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="col-md-6 col-lg-3">
-                        <div class="card stat-card">
-                            <div class="card-body">
-                                <div class="stat-icon bg-warning">
-                                    <i class="bi bi-calendar-check"></i>
-                                </div>
-                                <div class="stat-info">
-                                    <h3>0</h3>
-                                    <p class="text-muted mb-0">Today's Visits</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="col-md-6 col-lg-3">
+                    <?php elseif ($current_user_role === 'Security'): ?>
+                    <!-- Security: Approved Visits Today -->
+                    <div class="col-md-6 col-lg-4">
                         <div class="card stat-card">
                             <div class="card-body">
                                 <div class="stat-icon bg-info">
-                                    <i class="bi bi-clock-history"></i>
+                                    <i class="bi bi-check-circle"></i>
                                 </div>
                                 <div class="stat-info">
-                                    <h3>0</h3>
-                                    <p class="text-muted mb-0">Pending Approvals</p>
+                                    <h3><?php echo $approved_today_count; ?></h3>
+                                    <p class="text-muted mb-0">Approved Visits Today</p>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card stat-card">
+                            <div class="card-body">
+                                <div class="stat-icon bg-primary">
+                                    <i class="bi bi-people"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <h3><?php echo $total_users_count; ?></h3>
+                                    <p class="text-muted mb-0">Active Users</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card stat-card">
+                            <div class="card-body">
+                                <div class="stat-icon bg-success">
+                                    <i class="bi bi-person-badge"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <h3><?php echo $total_roles_count; ?></h3>
+                                    <p class="text-muted mb-0">User Roles</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endif; ?>
                 </div>
                 
                 <!-- User Info Card -->
@@ -188,8 +305,8 @@ try {
                             <div class="card-body">
                                 <div class="alert alert-info">
                                     <i class="bi bi-info-circle me-2"></i>
-                                    <strong>VAMS Phase 1:</strong> Authentication System is now active. 
-                                    Future phases will include Visitor Management, Visit Management, Approval System, Check-in/out, and Reports.
+                                    <strong>VAMS Phase 3:</strong> Visit Management and Approval Workflow is now active. 
+                                    Future phases will include Check-in/out and Reports.
                                 </div>
                                 <div class="row">
                                     <div class="col-md-4">

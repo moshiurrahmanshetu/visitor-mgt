@@ -23,6 +23,22 @@ This phase implements visitor registration and management including:
 - Duplicate phone number detection via AJAX
 - Role-based access control (Admin/Receptionist can add/edit/delete, Security/Employee can view only)
 
+## Phase 3: Visit Management and Approval Workflow
+
+This phase implements visit scheduling and approval including:
+- Create visits with visitor search (AJAX-based)
+- Visit list with search, filter, pagination, and role-based visibility
+- View visit details with visitor and host information
+- Edit visit details (Pending status only)
+- Cancel visits (any status except Checked Out)
+- Approval workflow (Approve/Reject with reason)
+- Role-based access control:
+  - Admin: Full access to all operations
+  - Receptionist: Create, view, edit (Pending), cancel visits
+  - Security: Read-only access to all visits
+  - Employee (Host): View own visits, approve/reject own pending visits
+- Dashboard widgets per role (Pending Approvals, Today's Visits, Approved Visits Today)
+
 ## Tech Stack
 
 - **Frontend**: HTML5, CSS3, JavaScript, Bootstrap 5
@@ -65,16 +81,19 @@ This phase implements visitor registration and management including:
    - Navigate to the `database` folder
    - Import `01_users_roles.sql` first (creates roles and users tables)
    - Then import `02_visitors.sql` (creates visitors table)
+   - Then import `03_visits.sql` (creates visits table)
    - Use phpMyAdmin's Import feature or MySQL CLI:
      ```bash
      mysql -u root -p vams < database/01_users_roles.sql
      mysql -u root -p vams < database/02_visitors.sql
+     mysql -u root -p vams < database/03_visits.sql
      ```
 
 4. Verify the tables were created:
    - `roles` table with 4 seed roles
    - `users` table with 1 default admin user
    - `visitors` table (empty, ready for visitor records)
+   - `visits` table (empty, ready for visit records)
 
 ### 3. Configure Database Connection
 
@@ -175,11 +194,21 @@ visitor-mgt/
 │       ├── delete.php          # Soft delete visitor
 │       ├── restore.php         # Restore deleted visitor (Admin only)
 │       └── check_phone.php     # AJAX endpoint for duplicate phone check
+│   └── visits/
+│       ├── add.php             # Create visit with visitor search
+│       ├── list.php            # Visit list with search/filter/pagination
+│       ├── view.php            # View visit details
+│       ├── edit.php            # Edit visit (Pending only)
+│       ├── cancel.php          # Cancel visit
+│       ├── approve.php         # Approve visit
+│       ├── reject.php          # Reject visit with reason
+│       └── search_visitor.php  # AJAX endpoint for visitor search
 ├── dashboard/
 │   └── index.php               # Dashboard shell
 ├── database/
 │   ├── 01_users_roles.sql      # Users and roles schema
-│   └── 02_visitors.sql         # Visitors schema
+│   ├── 02_visitors.sql         # Visitors schema
+│   └── 03_visits.sql          # Visits schema
 ├── logs/
 │   └── error.log               # Error logs (auto-created)
 ├── index.php                   # Root redirect
@@ -225,6 +254,29 @@ visitor-mgt/
 - Role-based access control:
   - Admin/Receptionist: Full access (add, edit, delete, restore)
   - Security/Employee: Read-only access (view and search only)
+
+## Features Implemented (Phase 3)
+
+### Visit Management
+- Create visits with AJAX-based visitor search
+- Auto-generated visit codes (VST-XXXXXX format)
+- Visit list with pagination (15 records per page)
+- Search by visit code or visitor name
+- Filter by status, date range, and host
+- View detailed visit information with visitor and host details
+- Edit visit details (Pending status only)
+- Cancel visits (any status except Checked Out)
+- Approval workflow with modal confirmations
+- Reject visits with required reason (minimum 10 characters)
+- Role-based access control:
+  - Admin: Full access to all operations
+  - Receptionist: Create, view, edit (Pending), cancel visits
+  - Security: Read-only access to all visits
+  - Employee (Host): View own visits, approve/reject own pending visits
+- Dashboard widgets per role:
+  - Employee: Pending Approvals count
+  - Admin/Receptionist: Today's Visits and Pending Approvals (All)
+  - Security: Approved Visits Today
 
 ### UI/UX
 - Clean, professional Bootstrap 5 interface
@@ -282,12 +334,30 @@ visitor-mgt/
 - `created_at` - Record creation timestamp
 - `updated_at` - Last update timestamp
 
+### Visits Table
+- `id` - Primary key
+- `visit_code` - Unique visit code (auto-generated: VST-XXXXXX)
+- `visitor_id` - Foreign key to visitors table (CASCADE on delete)
+- `host_id` - Foreign key to users table (RESTRICT on delete)
+- `department` - Department name
+- `visit_date` - Visit date (indexed for search)
+- `expected_time` - Expected arrival time
+- `purpose` - Purpose of visit
+- `number_of_visitors` - Number of visitors (default: 1)
+- `notes` - Additional notes
+- `status` - Visit status (Pending, Approved, Rejected, Checked In, Checked Out, Cancelled)
+- `rejection_reason` - Reason for rejection
+- `approved_by` - Foreign key to users table (approver)
+- `approved_at` - Approval timestamp
+- `created_by` - Foreign key to users table (creator)
+- `created_at` - Record creation timestamp
+- `updated_at` - Last update timestamp
+
 ## Future Phases
 
 The following features will be implemented in future phases:
 
-- **Phase 3**: Visit Management (scheduling, check-in/check-out)
-- **Phase 4**: Approval System (workflow for visit approvals)
+- **Phase 4**: Check-in/Check-out System (visitor arrival/departure tracking, pass issuance)
 - **Phase 5**: Reports and Analytics (visitor statistics, export)
 - **Phase 6**: Advanced Features (notifications, badges, QR codes)
 
@@ -330,7 +400,7 @@ The following features will be implemented in future phases:
 ## Support
 
 For issues or questions related to this phase, please refer to:
-- Database schema: `database/01_users_roles.sql` and `database/02_visitors.sql`
+- Database schema: `database/01_users_roles.sql`, `database/02_visitors.sql`, and `database/03_visits.sql`
 - Configuration: `config/constants.php` and `config/db.php`
 - Error logs: `logs/error.log`
 
@@ -340,5 +410,5 @@ This project is proprietary and confidential. All rights reserved.
 
 ---
 
-**Version**: 2.0.0 (Phase 2)
+**Version**: 3.0.0 (Phase 3)
 **Last Updated**: August 2026
