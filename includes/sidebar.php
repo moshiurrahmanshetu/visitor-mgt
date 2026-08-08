@@ -129,6 +129,39 @@ $current_path = $_SERVER['REQUEST_URI'];
             </li>
             <?php endif; ?>
             
+            <!-- Reports (Hidden for Employee) -->
+            <?php if (in_array($current_user_role, ['Admin', 'Receptionist', 'Security'])): ?>
+            <li class="nav-item sidebar-section">
+                <span class="nav-text text-muted small">Reports</span>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link <?php echo strpos($current_path, '/modules/reports/index.php') !== false ? 'active' : ''; ?>" 
+                   href="<?php echo BASE_URL; ?>/modules/reports/index.php">
+                    <i class="bi bi-graph-up"></i>
+                    <span class="nav-text">Report Dashboard</span>
+                </a>
+            </li>
+            
+            <?php if (in_array($current_user_role, ['Admin', 'Receptionist'])): ?>
+            <li class="nav-item">
+                <a class="nav-link <?php echo strpos($current_path, '/modules/reports/visitor_history.php') !== false ? 'active' : ''; ?>" 
+                   href="<?php echo BASE_URL; ?>/modules/reports/visitor_history.php">
+                    <i class="bi bi-clock-history"></i>
+                    <span class="nav-text">Visitor History</span>
+                </a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link <?php echo strpos($current_path, '/modules/reports/date_wise.php') !== false ? 'active' : ''; ?>" 
+                   href="<?php echo BASE_URL; ?>/modules/reports/date_wise.php">
+                    <i class="bi bi-calendar-range"></i>
+                    <span class="nav-text">Date-Wise Report</span>
+                </a>
+            </li>
+            <?php endif; ?>
+            <?php endif; ?>
+            
             <li class="nav-item sidebar-section">
                 <span class="nav-text text-muted small">Management</span>
             </li>
@@ -137,13 +170,6 @@ $current_path = $_SERVER['REQUEST_URI'];
                 <a class="nav-link" href="#">
                     <i class="bi bi-check-circle"></i>
                     <span class="nav-text">Approvals</span>
-                </a>
-            </li>
-            
-            <li class="nav-item disabled">
-                <a class="nav-link" href="#">
-                    <i class="bi bi-graph-up"></i>
-                    <span class="nav-text">Reports</span>
                 </a>
             </li>
             

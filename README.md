@@ -59,6 +59,22 @@ This phase implements visitor arrival/departure tracking and pass issuance inclu
   - New visitor_passes table with FK to visits and users
   - visits.is_currently_inside flag for fast "who is inside" queries
 
+## Phase 5: Visitor Logs & Reports
+
+This phase implements comprehensive visitor reporting and analytics including:
+- Report Dashboard with role-based quick-access cards (Today's Visitors, Currently Inside, Completed Today, Pending, Rejected)
+- Visitor History search/filter with multiple criteria (name, phone, code, host, department, date range, status)
+- Server-side pagination (20 records per page) for all report tables
+- Date-Wise Report with summary counts (Total, Approved, Rejected, Checked In, Checked Out, Cancelled, Pending)
+- CSV Export for Visitor History and Date-Wise reports (streamed directly to browser, no server storage)
+- Role-based access control:
+  - Admin: Full access to all reports and history
+  - Receptionist: Full access to all reports and history
+  - Security: Report Dashboard only (Today's Visitors, Currently Inside, Completed Today)
+  - Employee: Redirected to own visit list (no report dashboard access)
+- All queries use prepared statements with dynamic WHERE clause building
+- CSRF token validation on export forms
+
 ## Tech Stack
 
 - **Frontend**: HTML5, CSS3, JavaScript, Bootstrap 5
@@ -232,6 +248,11 @@ visitor-mgt/
 │       ├── currently_inside.php # Currently Inside list
 │       ├── pass.php            # Visitor Pass View/Print
 │       └── search_visit.php    # AJAX endpoint for visit search
+│   └── reports/
+│       ├── index.php           # Report Dashboard
+│       ├── visitor_history.php # Visitor History search/filter
+│       ├── date_wise.php       # Date-Wise Report
+│       └── export_csv.php      # CSV Export handler
 ├── dashboard/
 │   └── index.php               # Dashboard shell
 ├── database/
@@ -326,6 +347,27 @@ visitor-mgt/
   - Receptionist: Full check-in/check-out access
   - Employee: Read-only access to Currently Inside (filtered to own visits)
 
+## Features Implemented (Phase 5)
+
+### Visitor Logs & Reports
+- Report Dashboard with role-based quick-access cards
+- Today's Visitors count (links to filtered history for Admin/Receptionist)
+- Currently Inside count (links to Phase 4's currently_inside.php)
+- Completed Today count (links to filtered history)
+- Pending Visits count (links to Phase 3's visit list)
+- Rejected Visits count (Admin/Receptionist only)
+- Visitor History search with multiple filters (name, phone, code, host, department, date range, status)
+- Server-side pagination (20 records per page)
+- Date-Wise Report with summary counts by status
+- CSV Export for Visitor History and Date-Wise reports
+- Role-based access control:
+  - Admin: Full access to all reports and history
+  - Receptionist: Full access to all reports and history
+  - Security: Report Dashboard only (operational reports)
+  - Employee: Redirected to own visit list (no report dashboard)
+- All queries use prepared statements with dynamic WHERE clause building
+- CSRF token validation on export forms
+
 ### UI/UX
 - Clean, professional Bootstrap 5 interface
 - Collapsible sidebar with smooth transitions
@@ -416,9 +458,8 @@ visitor-mgt/
 
 The following features will be implemented in future phases:
 
-- **Phase 4**: Check-in/Check-out System (visitor arrival/departure tracking, pass issuance)
-- **Phase 5**: Reports and Analytics (visitor statistics, export)
-- **Phase 6**: Advanced Features (notifications, badges, QR codes)
+- **Phase 6**: User Management CRUD screens (Admin-only user management on top of existing users table)
+- **Phase 7**: Advanced Features (notifications, badges, QR codes)
 
 ## Troubleshooting
 
@@ -459,7 +500,7 @@ The following features will be implemented in future phases:
 ## Support
 
 For issues or questions related to this phase, please refer to:
-- Database schema: `database/01_users_roles.sql`, `database/02_visitors.sql`, and `database/03_visits.sql`
+- Database schema: `database/01_users_roles.sql`, `database/02_visitors.sql`, `database/03_visits.sql`, and `database/04_checkinout.sql`
 - Configuration: `config/constants.php` and `config/db.php`
 - Error logs: `logs/error.log`
 
@@ -469,5 +510,5 @@ This project is proprietary and confidential. All rights reserved.
 
 ---
 
-**Version**: 3.0.0 (Phase 3)
+**Version**: 5.0.0 (Phase 5)
 **Last Updated**: August 2026
