@@ -39,6 +39,26 @@ This phase implements visit scheduling and approval including:
   - Employee (Host): View own visits, approve/reject own pending visits
 - Dashboard widgets per role (Pending Approvals, Today's Visits, Approved Visits Today)
 
+## Phase 4: Check-In / Check-Out and Visitor Pass Generation
+
+This phase implements visitor arrival/departure tracking and pass issuance including:
+- Check-In page with AJAX search for approved visits (today only)
+- Check-Out page with AJAX search for checked-in visitors
+- Currently Inside list with live duration display (auto-refresh every 60 seconds)
+- Visitor Pass View/Print page with professional badge design
+- Pass number generation (PASS-XXXXXX format, post-insert using LAST_INSERT_ID())
+- Duration badge color coding (green < 1h, yellow 1-3h, red > 3h)
+- Print CSS for pass card (hides sidebar/navbar, shows only pass when printing)
+- Visit View page updated to show pass info when applicable
+- Role-based access control:
+  - Admin: Full check-in/check-out access
+  - Security: Full check-in/check-out access (primary role)
+  - Receptionist: Full check-in/check-out access
+  - Employee: Read-only access to Currently Inside (filtered to own visits)
+- Database updates:
+  - New visitor_passes table with FK to visits and users
+  - visits.is_currently_inside flag for fast "who is inside" queries
+
 ## Tech Stack
 
 - **Frontend**: HTML5, CSS3, JavaScript, Bootstrap 5
@@ -82,18 +102,21 @@ This phase implements visit scheduling and approval including:
    - Import `01_users_roles.sql` first (creates roles and users tables)
    - Then import `02_visitors.sql` (creates visitors table)
    - Then import `03_visits.sql` (creates visits table)
+   - Then import `04_checkinout.sql` (creates visitor_passes table and adds is_currently_inside to visits)
    - Use phpMyAdmin's Import feature or MySQL CLI:
      ```bash
      mysql -u root -p vams < database/01_users_roles.sql
      mysql -u root -p vams < database/02_visitors.sql
      mysql -u root -p vams < database/03_visits.sql
+     mysql -u root -p vams < database/04_checkinout.sql
      ```
 
 4. Verify the tables were created:
    - `roles` table with 4 seed roles
    - `users` table with 1 default admin user
    - `visitors` table (empty, ready for visitor records)
-   - `visits` table (empty, ready for visit records)
+   - `visits` table (empty, ready for visit records, with is_currently_inside column)
+   - `visitor_passes` table (empty, ready for pass records)
 
 ### 3. Configure Database Connection
 
@@ -203,12 +226,19 @@ visitor-mgt/
 │       ├── approve.php         # Approve visit
 │       ├── reject.php          # Reject visit with reason
 │       └── search_visitor.php  # AJAX endpoint for visitor search
+│   └── checkinout/
+│       ├── checkin.php         # Check-In visitor
+│       ├── checkout.php        # Check-Out visitor
+│       ├── currently_inside.php # Currently Inside list
+│       ├── pass.php            # Visitor Pass View/Print
+│       └── search_visit.php    # AJAX endpoint for visit search
 ├── dashboard/
 │   └── index.php               # Dashboard shell
 ├── database/
 │   ├── 01_users_roles.sql      # Users and roles schema
 │   ├── 02_visitors.sql         # Visitors schema
-│   └── 03_visits.sql          # Visits schema
+│   ├── 03_visits.sql          # Visits schema
+│   └── 04_checkinout.sql      # Visitor passes schema and visits table update
 ├── logs/
 │   └── error.log               # Error logs (auto-created)
 ├── index.php                   # Root redirect
@@ -278,6 +308,24 @@ visitor-mgt/
   - Admin/Receptionist: Today's Visits and Pending Approvals (All)
   - Security: Approved Visits Today
 
+## Features Implemented (Phase 4)
+
+### Check-In / Check-Out
+- Check-In page with AJAX search for approved visits (today only)
+- Check-Out page with AJAX search for checked-in visitors
+- Currently Inside list with live duration display
+- Auto-refresh duration every 60 seconds using vanilla JS setInterval
+- Duration badge color coding (green < 1h, yellow 1-3h, red > 3h)
+- Visitor Pass View/Print page with professional badge design
+- Pass number generation (PASS-XXXXXX format, post-insert using LAST_INSERT_ID())
+- Print CSS for pass card (hides sidebar/navbar, shows only pass when printing)
+- Visit View page shows pass info when visit is Checked In or Checked Out
+- Role-based access control:
+  - Admin: Full check-in/check-out access
+  - Security: Full check-in/check-out access (primary role)
+  - Receptionist: Full check-in/check-out access
+  - Employee: Read-only access to Currently Inside (filtered to own visits)
+
 ### UI/UX
 - Clean, professional Bootstrap 5 interface
 - Collapsible sidebar with smooth transitions
@@ -346,12 +394,23 @@ visitor-mgt/
 - `number_of_visitors` - Number of visitors (default: 1)
 - `notes` - Additional notes
 - `status` - Visit status (Pending, Approved, Rejected, Checked In, Checked Out, Cancelled)
+- `is_currently_inside` - Flag indicating if visitor is currently inside (0/1)
 - `rejection_reason` - Reason for rejection
 - `approved_by` - Foreign key to users table (approver)
 - `approved_at` - Approval timestamp
 - `created_by` - Foreign key to users table (creator)
 - `created_at` - Record creation timestamp
 - `updated_at` - Last update timestamp
+
+### Visitor Passes Table
+- `id` - Primary key
+- `pass_number` - Unique pass number (auto-generated: PASS-XXXXXX)
+- `visit_id` - Foreign key to visits table (CASCADE on delete)
+- `check_in_time` - Check-in timestamp
+- `check_out_time` - Check-out timestamp (NULL if still inside)
+- `checked_in_by` - Foreign key to users table (user who checked in)
+- `checked_out_by` - Foreign key to users table (user who checked out)
+- `created_at` - Record creation timestamp
 
 ## Future Phases
 

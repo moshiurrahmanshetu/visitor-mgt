@@ -54,12 +54,20 @@ try {
         $error_message = 'You do not have permission to view this visit.';
     }
     
+    // Get pass information if visit has been checked in
+    $pass = null;
+    if ($visit && in_array($visit['status'], ['Checked In', 'Checked Out'])) {
+        $pass_sql = "SELECT vp.* FROM visitor_passes vp WHERE vp.visit_id = :visit_id LIMIT 1";
+        $pass = fetchOne($pdo, $pass_sql, ['visit_id' => $visit_id]);
+    }
+    
 } catch (PDOException $e) {
     $error_message = 'Failed to load visit details. Please try again later.';
     if (defined('DEBUG_MODE') && DEBUG_MODE) {
         $error_message .= ' ' . $e->getMessage();
     }
     $visit = null;
+    $pass = null;
 }
 
 // Status badge colors
@@ -249,17 +257,34 @@ $status_badges = [
                             </div>
                         </div>
                         
-                        <!-- Check-in/Check-out Placeholder -->
+                        <!-- Check-in/Check-out Information -->
                         <div class="card mt-3">
                             <div class="card-header">
                                 <h5 class="card-title mb-0">Check-in / Check-out</h5>
                             </div>
                             <div class="card-body">
-                                <!-- TODO Phase 4: Check-in/Check-out actions and pass info will appear here -->
+                                <?php if ($pass): ?>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p><strong>Pass Number:</strong> <span class="badge bg-success"><?php echo htmlspecialchars($pass['pass_number']); ?></span></p>
+                                        <p><strong>Check-In Time:</strong> <?php echo date('M d, Y H:i', strtotime($pass['check_in_time'])); ?></p>
+                                        <?php if ($pass['check_out_time']): ?>
+                                        <p><strong>Check-Out Time:</strong> <?php echo date('M d, Y H:i', strtotime($pass['check_out_time'])); ?></p>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <a href="<?php echo BASE_URL; ?>/modules/checkinout/pass.php?id=<?php echo $pass['id']; ?>" 
+                                           class="btn btn-primary">
+                                            <i class="bi bi-card-text me-2"></i>View/Print Pass
+                                        </a>
+                                    </div>
+                                </div>
+                                <?php else: ?>
                                 <div class="alert alert-info">
                                     <i class="bi bi-info-circle me-2"></i>
-                                    Check-in/Check-out functionality will be available in Phase 4.
+                                    This visit has not been checked in yet.
                                 </div>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>

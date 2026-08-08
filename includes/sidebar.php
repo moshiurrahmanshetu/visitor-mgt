@@ -98,6 +98,37 @@ $current_path = $_SERVER['REQUEST_URI'];
             </li>
             <?php endif; ?>
             
+            <!-- Check-In / Check-Out (Hidden for Employee) -->
+            <?php if (in_array($current_user_role, ['Admin', 'Security', 'Receptionist'])): ?>
+            <li class="nav-item sidebar-section">
+                <span class="nav-text text-muted small">Check-In / Check-Out</span>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link <?php echo strpos($current_path, '/modules/checkinout/checkin.php') !== false ? 'active' : ''; ?>" 
+                   href="<?php echo BASE_URL; ?>/modules/checkinout/checkin.php">
+                    <i class="bi bi-box-arrow-in-right"></i>
+                    <span class="nav-text">Check-In</span>
+                </a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link <?php echo strpos($current_path, '/modules/checkinout/checkout.php') !== false ? 'active' : ''; ?>" 
+                   href="<?php echo BASE_URL; ?>/modules/checkinout/checkout.php">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span class="nav-text">Check-Out</span>
+                </a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link <?php echo strpos($current_path, '/modules/checkinout/currently_inside.php') !== false ? 'active' : ''; ?>" 
+                   href="<?php echo BASE_URL; ?>/modules/checkinout/currently_inside.php">
+                    <i class="bi bi-people-fill"></i>
+                    <span class="nav-text">Currently Inside</span>
+                </a>
+            </li>
+            <?php endif; ?>
+            
             <li class="nav-item sidebar-section">
                 <span class="nav-text text-muted small">Management</span>
             </li>
