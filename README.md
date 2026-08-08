@@ -70,10 +70,28 @@ This phase implements comprehensive visitor reporting and analytics including:
 - Role-based access control:
   - Admin: Full access to all reports and history
   - Receptionist: Full access to all reports and history
-  - Security: Report Dashboard only (Today's Visitors, Currently Inside, Completed Today)
+  - Security: Report Dashboard only (operational reports)
   - Employee: Redirected to own visit list (no report dashboard access)
 - All queries use prepared statements with dynamic WHERE clause building
 - CSRF token validation on export forms
+
+## Phase 6: User & Role Management
+
+This phase implements Admin-only user management including:
+- User List with search/filter/pagination (15 records per page)
+- Active Users and Deleted Users tabs (soft delete with restore option)
+- Add User with password validation (min 8 chars, 1 letter + 1 number)
+- Edit User (no password field - password changes via Reset Password)
+- View User Details with activity summary (Receptionist: visitors added/visits created; Employee: visits hosted/approved/rejected)
+- Reset Password (Admin sets new password directly, no email flow)
+- Activate/Deactivate User (toggles status, self-protection enforced)
+- Soft Delete/Restore User (is_deleted flag, self-protection enforced)
+- Self-protection rules: Admin cannot deactivate, delete, or demote own account
+- Login security check: status='active' AND is_deleted=0 required for login
+- Role-based access control: Admin only (all other roles redirected with error)
+- Database update: is_deleted column added to users table with index
+- Password show/hide toggle on Add User and Reset Password forms
+- Avatar upload with validation (JPG/PNG, max 2MB, unique filename)
 
 ## Tech Stack
 
@@ -119,17 +137,19 @@ This phase implements comprehensive visitor reporting and analytics including:
    - Then import `02_visitors.sql` (creates visitors table)
    - Then import `03_visits.sql` (creates visits table)
    - Then import `04_checkinout.sql` (creates visitor_passes table and adds is_currently_inside to visits)
+   - Then import `06_users_alter.sql` (adds is_deleted column to users table)
    - Use phpMyAdmin's Import feature or MySQL CLI:
      ```bash
      mysql -u root -p vams < database/01_users_roles.sql
      mysql -u root -p vams < database/02_visitors.sql
      mysql -u root -p vams < database/03_visits.sql
      mysql -u root -p vams < database/04_checkinout.sql
+     mysql -u root -p vams < database/06_users_alter.sql
      ```
 
 4. Verify the tables were created:
    - `roles` table with 4 seed roles
-   - `users` table with 1 default admin user
+   - `users` table with 1 default admin user (with is_deleted column)
    - `visitors` table (empty, ready for visitor records)
    - `visits` table (empty, ready for visit records, with is_currently_inside column)
    - `visitor_passes` table (empty, ready for pass records)
@@ -253,13 +273,23 @@ visitor-mgt/
 │       ├── visitor_history.php # Visitor History search/filter
 │       ├── date_wise.php       # Date-Wise Report
 │       └── export_csv.php      # CSV Export handler
+│   └── users/
+│       ├── add.php             # Add User
+│       ├── list.php            # User List with tabs
+│       ├── view.php            # View User Details
+│       ├── edit.php            # Edit User
+│       ├── reset_password.php  # Reset Password
+│       ├── toggle_status.php   # Activate/Deactivate
+│       ├── delete.php          # Soft Delete
+│       └── restore.php         # Restore User
 ├── dashboard/
 │   └── index.php               # Dashboard shell
 ├── database/
 │   ├── 01_users_roles.sql      # Users and roles schema
 │   ├── 02_visitors.sql         # Visitors schema
 │   ├── 03_visits.sql          # Visits schema
-│   └── 04_checkinout.sql      # Visitor passes schema and visits table update
+│   ├── 04_checkinout.sql      # Visitor passes schema and visits table update
+│   └── 06_users_alter.sql     # User management alter (is_deleted column)
 ├── logs/
 │   └── error.log               # Error logs (auto-created)
 ├── index.php                   # Root redirect
@@ -368,6 +398,25 @@ visitor-mgt/
 - All queries use prepared statements with dynamic WHERE clause building
 - CSRF token validation on export forms
 
+## Features Implemented (Phase 6)
+
+### User & Role Management
+- User List with search/filter/pagination (15 records per page)
+- Active Users and Deleted Users tabs (soft delete with restore option)
+- Add User with password validation (min 8 chars, 1 letter + 1 number)
+- Edit User (no password field - password changes via Reset Password)
+- View User Details with activity summary (Receptionist: visitors added/visits created; Employee: visits hosted/approved/rejected)
+- Reset Password (Admin sets new password directly, no email flow)
+- Activate/Deactivate User (toggles status, self-protection enforced)
+- Soft Delete/Restore User (is_deleted flag, self-protection enforced)
+- Self-protection rules: Admin cannot deactivate, delete, or demote own account
+- Login security check: status='active' AND is_deleted=0 required for login
+- Role-based access control: Admin only (all other roles redirected with error)
+- Password show/hide toggle on Add User and Reset Password forms
+- Avatar upload with validation (JPG/PNG, max 2MB, unique filename)
+- Role badge colors: Admin=red, Receptionist=blue, Security=orange, Employee=green
+- Status badge colors: Active=green, Inactive=gray
+
 ### UI/UX
 - Clean, professional Bootstrap 5 interface
 - Collapsible sidebar with smooth transitions
@@ -458,7 +507,6 @@ visitor-mgt/
 
 The following features will be implemented in future phases:
 
-- **Phase 6**: User Management CRUD screens (Admin-only user management on top of existing users table)
 - **Phase 7**: Advanced Features (notifications, badges, QR codes)
 
 ## Troubleshooting
@@ -500,7 +548,7 @@ The following features will be implemented in future phases:
 ## Support
 
 For issues or questions related to this phase, please refer to:
-- Database schema: `database/01_users_roles.sql`, `database/02_visitors.sql`, `database/03_visits.sql`, and `database/04_checkinout.sql`
+- Database schema: `database/01_users_roles.sql`, `database/02_visitors.sql`, `database/03_visits.sql`, `database/04_checkinout.sql`, and `database/06_users_alter.sql`
 - Configuration: `config/constants.php` and `config/db.php`
 - Error logs: `logs/error.log`
 
@@ -510,5 +558,5 @@ This project is proprietary and confidential. All rights reserved.
 
 ---
 
-**Version**: 5.0.0 (Phase 5)
+**Version**: 6.0.0 (Phase 6)
 **Last Updated**: August 2026

@@ -179,10 +179,19 @@ $current_path = $_SERVER['REQUEST_URI'];
                 <span class="nav-text text-muted small">Administration</span>
             </li>
             
-            <li class="nav-item disabled">
-                <a class="nav-link" href="#">
+            <li class="nav-item">
+                <a class="nav-link <?php echo strpos($current_path, '/modules/users/add.php') !== false ? 'active' : ''; ?>" 
+                   href="<?php echo BASE_URL; ?>/modules/users/add.php">
+                    <i class="bi bi-person-plus"></i>
+                    <span class="nav-text">Add User</span>
+                </a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link <?php echo strpos($current_path, '/modules/users/list.php') !== false || strpos($current_path, '/modules/users/view.php') !== false || strpos($current_path, '/modules/users/edit.php') !== false ? 'active' : ''; ?>" 
+                   href="<?php echo BASE_URL; ?>/modules/users/list.php">
                     <i class="bi bi-people-fill"></i>
-                    <span class="nav-text">Users</span>
+                    <span class="nav-text">User List</span>
                 </a>
             </li>
             

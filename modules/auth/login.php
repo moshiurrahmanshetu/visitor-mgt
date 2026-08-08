@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $pdo = getDbConnection();
                 
                 // Get user by email with role information
-                $sql = "SELECT u.id, u.employee_id, u.full_name, u.email, u.password_hash, u.role_id, u.avatar, u.status,
+                $sql = "SELECT u.id, u.employee_id, u.full_name, u.email, u.password_hash, u.role_id, u.avatar, u.status, u.is_deleted,
                                r.role_name
                         FROM users u
                         INNER JOIN roles r ON u.role_id = r.id
@@ -59,9 +59,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $user = fetchOne($pdo, $sql, ['email' => $email]);
                 
                 if ($user && password_verify($password, $user['password_hash'])) {
-                    // Check if user is active
+                    // Check if user is active and not deleted
                     if ($user['status'] !== 'active') {
                         $error_message = 'Your account is inactive. Please contact administrator.';
+                    } elseif ($user['is_deleted'] == 1) {
+                        $error_message = 'Your account has been deleted. Please contact administrator.';
                     } else {
                         // Successful login - set session variables
                         session_regenerate_id(true);
