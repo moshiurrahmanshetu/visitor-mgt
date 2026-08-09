@@ -2,6 +2,115 @@
 
 A comprehensive web-based visitor management system built with PHP, MySQL, and Bootstrap 5.
 
+## Installation Guide for Buyers
+
+This system includes a web-based installation wizard for easy setup. Follow these steps to install VAMS on your server:
+
+### Prerequisites
+
+- Web server (Apache/Nginx) with PHP 8.0 or higher
+- MySQL 5.7+ or MariaDB 10.2+
+- Required PHP extensions: PDO, pdo_mysql, fileinfo, GD
+- Write permissions for: `/config`, `/assets/uploads`, `/logs`
+
+### Step 1: Upload Files
+
+1. Upload the entire VAMS folder to your web server (e.g., via FTP or file manager)
+2. Ensure the folder structure is preserved
+
+### Step 2: Export Database File (For Sellers)
+
+If you are the seller distributing this system, export your complete database as a single .sql file:
+
+**Using phpMyAdmin:**
+1. Open phpMyAdmin and select your VAMS database
+2. Click the "Export" tab
+3. Select "Custom" export method
+4. Under "Format-specific options", check "Add DROP TABLE/VIEW/PROCEDURE/FUNCTION/EVENT statement"
+5. Click "Export" and save the .sql file
+
+**Using mysqldump (command line):**
+```bash
+mysqldump -u root -p vams > vams_database.sql
+```
+
+Include this .sql file with your distribution for buyers to upload during installation.
+
+### Step 3: Run the Installer
+
+1. Open your browser and navigate to your VAMS URL (e.g., `http://yourdomain.com/vams/`)
+2. The installer will automatically redirect you to the installation wizard
+3. Follow the 4-step wizard:
+
+**Step 1 - Requirements Check:**
+- The installer automatically checks PHP version, extensions, and folder permissions
+- Fix any failed requirements before proceeding
+- Non-blocking warnings (GD/fileinfo) can be ignored if you don't need those features
+
+**Step 2 - Database Configuration:**
+- Enter your MySQL connection details (Host, Port, Database Name, Username, Password)
+- Click "Test Connection" to verify credentials before proceeding
+- Upload the .sql database file provided with your purchase
+- If Test Connection fails:
+  - Verify your MySQL username and password are correct
+  - Check that MySQL server is running
+  - Ensure the user has sufficient privileges (CREATE DATABASE, CREATE TABLE, INSERT, etc.)
+  - For remote databases, check firewall settings and MySQL bind-address
+
+**Step 3 - Admin Account Setup:**
+- Enter your application name (e.g., "Company Visitor System")
+- Create your administrator account (Full Name, Email, Password)
+- The installer will replace the seed admin account with your credentials
+- Password must be at least 8 characters with at least 1 letter and 1 number
+
+**Step 4 - Run Installation:**
+- Review the configuration summary
+- Click "Install Now" to begin the installation process
+- The installer will:
+  - Create the database (if it doesn't exist)
+  - Import all tables from your uploaded SQL file
+  - Replace the seed admin account with your credentials
+  - Update the application name in settings
+  - Generate the `/config/db.php` file with your credentials
+  - Create an installation lock file
+
+### Step 4: Post-Installation
+
+1. After successful installation, click "Go to Login Page"
+2. Log in with your admin email and password
+3. **IMPORTANT:** Delete the `/installer` folder from your server for security
+4. The lock file at `/config/installed.lock` prevents re-running the installer
+
+### Troubleshooting
+
+**Installer doesn't start:**
+- Check that `/config/installed.lock` doesn't exist (delete it if reinstalling)
+- Ensure PHP 8.0+ is running on your server
+
+**Test Connection fails:**
+- Verify MySQL credentials are correct
+- Check MySQL server is running and accessible
+- Ensure the user has CREATE DATABASE privilege
+
+**SQL import fails:**
+- Verify the uploaded file is a valid .sql file
+- Check that your `upload_max_filesize` and `post_max_size` in php.ini are large enough (default 50MB max)
+- For large files, increase these values in php.ini
+
+**Permission errors:**
+- Ensure `/config`, `/assets/uploads`, and `/logs` folders are writable
+- On Linux: `chmod 755` for folders, `chmod 644` for files
+- The installer attempts to create missing folders automatically
+
+### Reinstallation
+
+If you need to reinstall the system:
+1. Delete `/config/installed.lock`
+2. Drop all tables from your database
+3. Re-run the installer by visiting your VAMS URL
+
+---
+
 ## Phase 1: Authentication System
 
 This phase implements the foundational authentication system including:
@@ -287,6 +396,20 @@ visitor-mgt/
 │   ├── sidebar.php             # Collapsible sidebar
 │   ├── settings_helper.php    # Settings helper functions
 │   └── permission_check.php   # Permission check functions
+├── installer/
+│   ├── index.php               # Installation wizard step router
+│   ├── step1_requirements.php  # Requirements check
+│   ├── step2_database.php     # Database configuration
+│   ├── step3_admin_account.php # Admin account setup
+│   ├── step4_install.php      # Installation execution
+│   ├── step_already_installed.php # Already installed page
+│   ├── process_test_connection.php # AJAX connection test
+│   ├── process_install.php     # AJAX installation handler
+│   ├── assets/
+│   │   ├── installer.css      # Installer styling
+│   │   └── installer.js       # Installer JavaScript
+│   └── temp/
+│       └── .htaccess           # Security: deny access to temp uploads
 ├── modules/
 │   ├── auth/
 │   │   ├── login.php           # Login page
@@ -652,5 +775,5 @@ This project is proprietary and confidential. All rights reserved.
 
 ---
 
-**Version**: 8.0.0 (Phase 8)
+**Version**: 9.0.0 (Phase 9 - Installation Wizard)
 **Last Updated**: August 2026

@@ -9,6 +9,14 @@
 // Load configuration FIRST
 require_once __DIR__ . '/config/constants.php';
 
+// Check if system is installed
+$lockFile = __DIR__ . '/config/installed.lock';
+if (!file_exists($lockFile)) {
+    // Redirect to installer
+    header('Location: ' . BASE_URL . '/installer/index.php');
+    exit;
+}
+
 // Start session
 if (session_status() === PHP_SESSION_NONE) {
     session_name(SESSION_NAME);
