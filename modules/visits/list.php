@@ -16,6 +16,10 @@ if (session_status() === PHP_SESSION_NONE) {
 // Load database and auth check
 require_once __DIR__ . '/../../config/db.php';
 require_once __DIR__ . '/../../includes/auth_check.php';
+require_once __DIR__ . '/../../includes/permission_check.php';
+
+// Permission check: visits.view
+require_permission('visits.view');
 
 $page_title = 'Visit List';
 

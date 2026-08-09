@@ -16,9 +16,10 @@ if (session_status() === PHP_SESSION_NONE) {
 // Load database and auth check
 require_once __DIR__ . '/../../config/db.php';
 require_once __DIR__ . '/../../includes/auth_check.php';
+require_once __DIR__ . '/../../includes/permission_check.php';
 
-// Role check: Only Admin and Receptionist can edit visitors
-requireRole(['Admin', 'Receptionist']);
+// Permission check: visitors.edit
+require_permission('visitors.edit');
 
 $page_title = 'Edit Visitor';
 

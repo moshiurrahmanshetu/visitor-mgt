@@ -16,14 +16,10 @@ if (session_status() === PHP_SESSION_NONE) {
 // Load database and auth check
 require_once __DIR__ . '/../../config/db.php';
 require_once __DIR__ . '/../../includes/auth_check.php';
+require_once __DIR__ . '/../../includes/permission_check.php';
 
-$current_user_id = getCurrentUserId();
-$current_user_role = getCurrentUserRole();
-
-// Role check: Admin and Receptionist only
-if (!in_array($current_user_role, ['Admin', 'Receptionist'])) {
-    die('Access denied.');
-}
+// Permission check: reports.export
+require_permission('reports.export');
 
 // Validate CSRF token
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

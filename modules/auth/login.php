@@ -18,6 +18,8 @@ require_once __DIR__ . '/../../config/db.php';
 
 // Load CSRF helper functions
 require_once __DIR__ . '/../../includes/auth_check.php';
+// Load permission check functions
+require_once __DIR__ . '/../../includes/permission_check.php';
 
 // If already logged in, redirect to dashboard
 if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
@@ -77,6 +79,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $_SESSION['avatar'] = $user['avatar'];
                         $_SESSION['logged_in'] = true;
                         $_SESSION['last_activity'] = time();
+                        
+                        // Load permissions for this role into session
+                        $_SESSION['permissions'] = load_permissions_for_role($user['role_id']);
                         
                         // Set remember me cookie if requested
                         if ($remember) {

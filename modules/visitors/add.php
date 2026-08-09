@@ -16,9 +16,10 @@ if (session_status() === PHP_SESSION_NONE) {
 // Load database and auth check
 require_once __DIR__ . '/../../config/db.php';
 require_once __DIR__ . '/../../includes/auth_check.php';
+require_once __DIR__ . '/../../includes/permission_check.php';
 
-// Role check: Only Admin and Receptionist can add visitors
-requireRole(['Admin', 'Receptionist']);
+// Permission check: visitors.add
+require_permission('visitors.add');
 
 $page_title = 'Add Visitor';
 

@@ -16,9 +16,10 @@ if (session_status() === PHP_SESSION_NONE) {
 // Load database and auth check
 require_once __DIR__ . '/../../config/db.php';
 require_once __DIR__ . '/../../includes/auth_check.php';
+require_once __DIR__ . '/../../includes/permission_check.php';
 
-// Role check: Only Admin and Receptionist can cancel visits
-requireRole(['Admin', 'Receptionist']);
+// Permission check: visits.cancel
+require_permission('visits.cancel');
 
 $visit_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 $error_message = '';
@@ -29,8 +30,9 @@ if ($visit_id <= 0) {
 }
 
 // Validate CSRF token
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($error_message)) {
-    if (!isset($_POST['csrf_token']) || !validateCsrfToken($_POST['csrf_token'])) {
+if (empty($error_message)) {
+    $csrf_token = $_GET['csrf_token'] ?? $_POST['csrf_token'] ?? null;
+    if (!$csrf_token || !validateCsrfToken($csrf_token)) {
         $error_message = 'Invalid form submission. Please try again.';
     }
 }

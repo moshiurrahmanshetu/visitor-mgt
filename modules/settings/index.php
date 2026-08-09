@@ -16,6 +16,7 @@ if (session_status() === PHP_SESSION_NONE) {
 // Load database and auth check
 require_once __DIR__ . '/../../config/db.php';
 require_once __DIR__ . '/../../includes/auth_check.php';
+require_once __DIR__ . '/../../includes/permission_check.php';
 require_once __DIR__ . '/../../includes/settings_helper.php';
 
 $page_title = 'Site Settings';
@@ -24,15 +25,8 @@ $current_user_role = getCurrentUserRole();
 $error_message = '';
 $success_message = '';
 
-// Role check: Admin only
-if ($current_user_role !== 'Admin') {
-    $_SESSION['flash_message'] = [
-        'type' => 'error',
-        'message' => 'Access Denied. You do not have permission to access this page.'
-    ];
-    header('Location: ' . BASE_URL . '/dashboard/index.php');
-    exit;
-}
+// Permission check: settings.manage
+require_permission('settings.manage');
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

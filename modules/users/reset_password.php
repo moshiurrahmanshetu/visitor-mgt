@@ -16,6 +16,10 @@ if (session_status() === PHP_SESSION_NONE) {
 // Load database and auth check
 require_once __DIR__ . '/../../config/db.php';
 require_once __DIR__ . '/../../includes/auth_check.php';
+require_once __DIR__ . '/../../includes/permission_check.php';
+
+// Permission check: users.reset_password
+require_permission('users.reset_password');
 
 $page_title = 'Reset Password';
 

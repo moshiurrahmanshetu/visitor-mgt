@@ -16,6 +16,10 @@ if (session_status() === PHP_SESSION_NONE) {
 // Load database and auth check
 require_once __DIR__ . '/../../config/db.php';
 require_once __DIR__ . '/../../includes/auth_check.php';
+require_once __DIR__ . '/../../includes/permission_check.php';
+
+// Permission check: visits.approve_reject
+require_permission('visits.approve_reject');
 
 $current_user_id = getCurrentUserId();
 $current_user_role = getCurrentUserRole();

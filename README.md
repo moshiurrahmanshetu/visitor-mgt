@@ -107,6 +107,33 @@ This phase implements system-wide configuration settings including:
 - Role-based access control: Admin only (all other roles redirected with error)
 - Logo upload with validation and old file deletion pattern
 - CSRF token validation on settings form
+- Server-side validation for email format and numeric ranges
+
+## Phase 8: Dynamic Role & Permission Management
+
+This phase implements a fully dynamic role and permission system including:
+- Permissions table with all system permissions (fixed reference list, not user-editable)
+- Role_permissions table for assigning permissions to roles (key-value design)
+- Role Management module (Admin only via `roles.manage` permission):
+  - Role List with user count and permission count
+  - Add Role (redirects to Edit Permissions after creation)
+  - Edit Role Info (role name and description)
+  - Edit Permissions (checkboxes grouped by module, transaction-based atomic updates)
+  - Delete Role (hard delete, only if zero users assigned, CASCADE cleans up role_permissions)
+- Permission-based access control system:
+  - `has_permission($permission_key)` function for checking permissions
+  - `require_permission($permission_key)` for gating access
+  - Permissions loaded into session at login for performance
+  - Permission changes apply on next login (not real-time session refresh)
+- Migration from hardcoded role checks to dynamic permission checks:
+  - All existing pages migrated from `check_role(['Admin', ...])` to `has_permission('module.action')`
+  - Sidebar dynamically shows/hides menu items based on permissions
+  - Existing 4 roles seeded with permissions matching their original behavior
+- Database table: permissions (id, permission_key, module_name, description)
+- Database table: role_permissions (id, role_id, permission_id, UNIQUE on role_id+permission_id)
+- CSRF token validation on all role management forms
+- Permission keys follow pattern: `module.action` (e.g., `visitors.add`, `visits.approve_reject`)
+- Module groups: Visitors, Visits, CheckInOut, Reports, Users, Settings, Roles
 
 ## Tech Stack
 
@@ -154,6 +181,7 @@ This phase implements system-wide configuration settings including:
    - Then import `04_checkinout.sql` (creates visitor_passes table and adds is_currently_inside to visits)
    - Then import `06_users_alter.sql` (adds is_deleted column to users table)
    - Then import `07_site_settings.sql` (creates site_settings table with seed data)
+   - Then import `08_permissions.sql` (creates permissions and role_permissions tables with seed data)
    - Use phpMyAdmin's Import feature or MySQL CLI:
      ```bash
      mysql -u root -p vams < database/01_users_roles.sql
@@ -162,6 +190,7 @@ This phase implements system-wide configuration settings including:
      mysql -u root -p vams < database/04_checkinout.sql
      mysql -u root -p vams < database/06_users_alter.sql
      mysql -u root -p vams < database/07_site_settings.sql
+     mysql -u root -p vams < database/08_permissions.sql
      ```
 
 4. Verify the tables were created:
@@ -171,6 +200,8 @@ This phase implements system-wide configuration settings including:
    - `visits` table (empty, ready for visit records, with is_currently_inside column)
    - `visitor_passes` table (empty, ready for pass records)
    - `site_settings` table with seed configuration data
+   - `permissions` table with all system permissions
+   - `role_permissions` table with seeded role-permission mappings
 
 ### 3. Configure Database Connection
 
@@ -254,7 +285,8 @@ visitor-mgt/
 │   ├── footer.php              # Closing body & scripts
 │   ├── navbar.php              # Top navigation bar
 │   ├── sidebar.php             # Collapsible sidebar
-│   └── settings_helper.php    # Settings helper functions
+│   ├── settings_helper.php    # Settings helper functions
+│   └── permission_check.php   # Permission check functions
 ├── modules/
 │   ├── auth/
 │   │   ├── login.php           # Login page
@@ -303,7 +335,13 @@ visitor-mgt/
 │       ├── delete.php          # Soft Delete
 │       └── restore.php         # Restore User
 │   └── settings/
-│       └── index.php           # Site Settings page
+│       └── index.php           # Site settings page
+│   └── roles/
+│       ├── list.php            # Role list
+│       ├── add.php             # Add role
+│       ├── edit.php            # Edit role info
+│       ├── permissions.php     # Edit role permissions
+│       └── delete.php          # Delete role
 ├── dashboard/
 │   └── index.php               # Dashboard shell
 ├── database/
@@ -312,7 +350,8 @@ visitor-mgt/
 │   ├── 03_visits.sql          # Visits schema
 │   ├── 04_checkinout.sql      # Visitor passes schema and visits table update
 │   ├── 06_users_alter.sql     # User management alter (is_deleted column)
-│   └── 07_site_settings.sql   # Site settings table
+│   ├── 07_site_settings.sql   # Site settings table
+│   └── 08_permissions.sql     # Permissions and role_permissions tables
 ├── logs/
 │   └── error.log               # Error logs (auto-created)
 ├── index.php                   # Root redirect
@@ -463,6 +502,23 @@ visitor-mgt/
 - Form validation (client-side and server-side)
 - Consistent color theme with CSS variables
 
+## Adding New Permissions
+
+To add a new permission for a future module:
+
+1. **Add to permissions table**: Insert a new row in the `permissions` table with:
+   - `permission_key`: Follow pattern `module.action` (e.g., `newmodule.view`)
+   - `module_name`: The module name for grouping in UI (e.g., 'NewModule')
+   - `description`: Human-readable description
+
+2. **Assign to roles**: Use the Role Management module to assign the new permission to appropriate roles via the Edit Permissions page.
+
+3. **Use in code**: Call `require_permission('newmodule.view')` or `has_permission('newmodule.view')` in your PHP files to gate access.
+
+4. **Update sidebar**: Add menu items in `/includes/sidebar.php` wrapped in `<?php if (has_permission('newmodule.view')): ?>` blocks.
+
+**Note**: The `permissions` table is a fixed reference list - do not allow users to add/delete permissions directly. Only role-permission assignments are user-editable via the Role Management module.
+
 ## Security Features
 
 - **SQL Injection Prevention**: All database queries use PDO with prepared statements
@@ -586,7 +642,7 @@ The following features will be implemented in future phases:
 ## Support
 
 For issues or questions related to this phase, please refer to:
-- Database schema: `database/01_users_roles.sql`, `database/02_visitors.sql`, `database/03_visits.sql`, `database/04_checkinout.sql`, `database/06_users_alter.sql`, and `database/07_site_settings.sql`
+- Database schema: `database/01_users_roles.sql`, `database/02_visitors.sql`, `database/03_visits.sql`, `database/04_checkinout.sql`, `database/06_users_alter.sql`, `database/07_site_settings.sql`, and `database/08_permissions.sql`
 - Configuration: `config/constants.php` and `config/db.php`
 - Error logs: `logs/error.log`
 
@@ -596,5 +652,5 @@ This project is proprietary and confidential. All rights reserved.
 
 ---
 
-**Version**: 7.0.0 (Phase 7)
+**Version**: 8.0.0 (Phase 8)
 **Last Updated**: August 2026

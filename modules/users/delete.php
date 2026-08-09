@@ -16,6 +16,7 @@ if (session_status() === PHP_SESSION_NONE) {
 // Load database and auth check
 require_once __DIR__ . '/../../config/db.php';
 require_once __DIR__ . '/../../includes/auth_check.php';
+require_once __DIR__ . '/../../includes/permission_check.php';
 
 $current_user_id = getCurrentUserId();
 $current_user_role = getCurrentUserRole();
@@ -27,15 +28,8 @@ if ($user_id <= 0) {
     $error_message = 'Invalid user ID.';
 }
 
-// Role check: Admin only
-if ($current_user_role !== 'Admin') {
-    $_SESSION['flash_message'] = [
-        'type' => 'error',
-        'message' => 'Access Denied. You do not have permission to perform this action.'
-    ];
-    header('Location: ' . BASE_URL . '/dashboard/index.php');
-    exit;
-}
+// Permission check: users.delete
+require_permission('users.delete');
 
 // Self-protection: Admin cannot delete self
 if ($user_id === $current_user_id) {
@@ -48,7 +42,8 @@ if ($user_id === $current_user_id) {
 }
 
 // Validate CSRF token
-if (!isset($_GET['csrf_token']) || !validateCsrfToken($_GET['csrf_token'])) {
+$csrf_token = $_GET['csrf_token'] ?? $_POST['csrf_token'] ?? null;
+if (!$csrf_token || !validateCsrfToken($csrf_token)) {
     $_SESSION['flash_message'] = [
         'type' => 'error',
         'message' => 'Invalid form submission. Please try again.'

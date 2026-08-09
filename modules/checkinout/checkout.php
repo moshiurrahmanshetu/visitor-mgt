@@ -16,9 +16,10 @@ if (session_status() === PHP_SESSION_NONE) {
 // Load database and auth check
 require_once __DIR__ . '/../../config/db.php';
 require_once __DIR__ . '/../../includes/auth_check.php';
+require_once __DIR__ . '/../../includes/permission_check.php';
 
-// Role check: Only Admin, Security, and Receptionist can check-out visitors
-requireRole(['Admin', 'Security', 'Receptionist']);
+// Permission check: checkinout.checkout
+require_permission('checkinout.checkout');
 
 $page_title = 'Check-Out Visitor';
 

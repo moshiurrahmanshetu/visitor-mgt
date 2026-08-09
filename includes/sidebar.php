@@ -12,6 +12,7 @@ if (!defined('VAMS_INCLUDED')) {
 
 // Load settings helper
 require_once __DIR__ . '/settings_helper.php';
+require_once __DIR__ . '/permission_check.php';
 
 $current_user_role = getCurrentUserRole();
 $current_path = $_SERVER['REQUEST_URI'];
@@ -58,7 +59,7 @@ $app_logo = get_setting('app_logo', null);
                 <span class="nav-text text-muted small">Visitor Management</span>
             </li>
             
-            <?php if (in_array($current_user_role, ['Admin', 'Receptionist'])): ?>
+            <?php if (has_permission('visitors.add')): ?>
             <li class="nav-item">
                 <a class="nav-link <?php echo strpos($current_path, '/modules/visitors/add.php') !== false ? 'active' : ''; ?>" 
                    href="<?php echo BASE_URL; ?>/modules/visitors/add.php">
@@ -68,6 +69,7 @@ $app_logo = get_setting('app_logo', null);
             </li>
             <?php endif; ?>
             
+            <?php if (has_permission('visitors.view')): ?>
             <li class="nav-item">
                 <a class="nav-link <?php echo strpos($current_path, '/modules/visitors/list.php') !== false || strpos($current_path, '/modules/visitors/view.php') !== false || strpos($current_path, '/modules/visitors/edit.php') !== false ? 'active' : ''; ?>" 
                    href="<?php echo BASE_URL; ?>/modules/visitors/list.php">
@@ -75,13 +77,16 @@ $app_logo = get_setting('app_logo', null);
                     <span class="nav-text">Visitor List</span>
                 </a>
             </li>
+            <?php endif; ?>
             
             <!-- Visit Management -->
+            <?php if (has_permission('visits.view') || has_permission('visits.add') || has_permission('visits.approve_reject')): ?>
             <li class="nav-item sidebar-section">
                 <span class="nav-text text-muted small">Visit Management</span>
             </li>
+            <?php endif; ?>
             
-            <?php if (in_array($current_user_role, ['Admin', 'Receptionist'])): ?>
+            <?php if (has_permission('visits.add')): ?>
             <li class="nav-item">
                 <a class="nav-link <?php echo strpos($current_path, '/modules/visits/add.php') !== false ? 'active' : ''; ?>" 
                    href="<?php echo BASE_URL; ?>/modules/visits/add.php">
@@ -91,7 +96,7 @@ $app_logo = get_setting('app_logo', null);
             </li>
             <?php endif; ?>
             
-            <?php if ($current_user_role === 'Employee'): ?>
+            <?php if (has_permission('visits.approve_reject') && $current_user_role === 'Employee'): ?>
             <li class="nav-item">
                 <a class="nav-link <?php echo strpos($current_path, '/modules/visits/list.php') !== false ? 'active' : ''; ?>" 
                    href="<?php echo BASE_URL; ?>/modules/visits/list.php?status=Pending">
@@ -99,7 +104,7 @@ $app_logo = get_setting('app_logo', null);
                     <span class="nav-text">My Approvals</span>
                 </a>
             </li>
-            <?php else: ?>
+            <?php elseif (has_permission('visits.view')): ?>
             <li class="nav-item">
                 <a class="nav-link <?php echo strpos($current_path, '/modules/visits/list.php') !== false || strpos($current_path, '/modules/visits/view.php') !== false || strpos($current_path, '/modules/visits/edit.php') !== false ? 'active' : ''; ?>" 
                    href="<?php echo BASE_URL; ?>/modules/visits/list.php">
@@ -109,12 +114,13 @@ $app_logo = get_setting('app_logo', null);
             </li>
             <?php endif; ?>
             
-            <!-- Check-In / Check-Out (Hidden for Employee) -->
-            <?php if (in_array($current_user_role, ['Admin', 'Security', 'Receptionist'])): ?>
+            <!-- Check-In / Check-Out -->
+            <?php if (has_permission('checkinout.checkin') || has_permission('checkinout.checkout') || has_permission('checkinout.view')): ?>
             <li class="nav-item sidebar-section">
                 <span class="nav-text text-muted small">Check-In / Check-Out</span>
             </li>
             
+            <?php if (has_permission('checkinout.checkin')): ?>
             <li class="nav-item">
                 <a class="nav-link <?php echo strpos($current_path, '/modules/checkinout/checkin.php') !== false ? 'active' : ''; ?>" 
                    href="<?php echo BASE_URL; ?>/modules/checkinout/checkin.php">
@@ -122,7 +128,9 @@ $app_logo = get_setting('app_logo', null);
                     <span class="nav-text">Check-In</span>
                 </a>
             </li>
+            <?php endif; ?>
             
+            <?php if (has_permission('checkinout.checkout')): ?>
             <li class="nav-item">
                 <a class="nav-link <?php echo strpos($current_path, '/modules/checkinout/checkout.php') !== false ? 'active' : ''; ?>" 
                    href="<?php echo BASE_URL; ?>/modules/checkinout/checkout.php">
@@ -130,7 +138,9 @@ $app_logo = get_setting('app_logo', null);
                     <span class="nav-text">Check-Out</span>
                 </a>
             </li>
+            <?php endif; ?>
             
+            <?php if (has_permission('checkinout.view')): ?>
             <li class="nav-item">
                 <a class="nav-link <?php echo strpos($current_path, '/modules/checkinout/currently_inside.php') !== false ? 'active' : ''; ?>" 
                    href="<?php echo BASE_URL; ?>/modules/checkinout/currently_inside.php">
@@ -139,9 +149,10 @@ $app_logo = get_setting('app_logo', null);
                 </a>
             </li>
             <?php endif; ?>
+            <?php endif; ?>
             
-            <!-- Reports (Hidden for Employee) -->
-            <?php if (in_array($current_user_role, ['Admin', 'Receptionist', 'Security'])): ?>
+            <!-- Reports -->
+            <?php if (has_permission('reports.view_all') || has_permission('reports.export')): ?>
             <li class="nav-item sidebar-section">
                 <span class="nav-text text-muted small">Reports</span>
             </li>
@@ -154,7 +165,7 @@ $app_logo = get_setting('app_logo', null);
                 </a>
             </li>
             
-            <?php if (in_array($current_user_role, ['Admin', 'Receptionist'])): ?>
+            <?php if (has_permission('reports.view_all')): ?>
             <li class="nav-item">
                 <a class="nav-link <?php echo strpos($current_path, '/modules/reports/visitor_history.php') !== false ? 'active' : ''; ?>" 
                    href="<?php echo BASE_URL; ?>/modules/reports/visitor_history.php">
@@ -173,23 +184,13 @@ $app_logo = get_setting('app_logo', null);
             <?php endif; ?>
             <?php endif; ?>
             
-            <li class="nav-item sidebar-section">
-                <span class="nav-text text-muted small">Management</span>
-            </li>
-            
-            <li class="nav-item disabled">
-                <a class="nav-link" href="#">
-                    <i class="bi bi-check-circle"></i>
-                    <span class="nav-text">Approvals</span>
-                </a>
-            </li>
-            
-            <!-- Admin-only sections -->
-            <?php if ($current_user_role === 'Admin'): ?>
+            <!-- Administration -->
+            <?php if (has_permission('users.view') || has_permission('users.add') || has_permission('settings.manage') || has_permission('roles.manage')): ?>
             <li class="nav-item sidebar-section">
                 <span class="nav-text text-muted small">Administration</span>
             </li>
             
+            <?php if (has_permission('users.add')): ?>
             <li class="nav-item">
                 <a class="nav-link <?php echo strpos($current_path, '/modules/users/add.php') !== false ? 'active' : ''; ?>" 
                    href="<?php echo BASE_URL; ?>/modules/users/add.php">
@@ -197,7 +198,9 @@ $app_logo = get_setting('app_logo', null);
                     <span class="nav-text">Add User</span>
                 </a>
             </li>
+            <?php endif; ?>
             
+            <?php if (has_permission('users.view')): ?>
             <li class="nav-item">
                 <a class="nav-link <?php echo strpos($current_path, '/modules/users/list.php') !== false || strpos($current_path, '/modules/users/view.php') !== false || strpos($current_path, '/modules/users/edit.php') !== false ? 'active' : ''; ?>" 
                    href="<?php echo BASE_URL; ?>/modules/users/list.php">
@@ -205,7 +208,19 @@ $app_logo = get_setting('app_logo', null);
                     <span class="nav-text">User List</span>
                 </a>
             </li>
+            <?php endif; ?>
             
+            <?php if (has_permission('roles.manage')): ?>
+            <li class="nav-item">
+                <a class="nav-link <?php echo strpos($current_path, '/modules/roles/list.php') !== false || strpos($current_path, '/modules/roles/add.php') !== false || strpos($current_path, '/modules/roles/edit.php') !== false || strpos($current_path, '/modules/roles/permissions.php') !== false ? 'active' : ''; ?>" 
+                   href="<?php echo BASE_URL; ?>/modules/roles/list.php">
+                    <i class="bi bi-shield-check"></i>
+                    <span class="nav-text">Roles</span>
+                </a>
+            </li>
+            <?php endif; ?>
+            
+            <?php if (has_permission('settings.manage')): ?>
             <li class="nav-item">
                 <a class="nav-link <?php echo strpos($current_path, '/modules/settings/index.php') !== false ? 'active' : ''; ?>" 
                    href="<?php echo BASE_URL; ?>/modules/settings/index.php">
@@ -213,6 +228,7 @@ $app_logo = get_setting('app_logo', null);
                     <span class="nav-text">Settings</span>
                 </a>
             </li>
+            <?php endif; ?>
             <?php endif; ?>
         </ul>
     </nav>
